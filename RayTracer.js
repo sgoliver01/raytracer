@@ -87,7 +87,16 @@ export class RayTracer {
         */
         // TODO
         if (record.length > 0) {
-            return record[0].struckGeometry.j_material.v3_diffuse
+            const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
+
+            
+            const sortedrecord = record.sort(cmp)
+            const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
+            color.x = color.x *255
+             color.y = color.y *255
+             color.z = color.z *255
+            
+            return (color)
         }
         else {
             return new Vector3(0,0,0)
@@ -106,10 +115,7 @@ class Ray {
         // b = x1,y1,z1
         // P = start + t*dir
     }
-    dot(x,y) {
-        const product = x[0]*y[0] + x[1]*y[1] + x[2]*y[2]
-        return product
-    }
+
 
     tToPt(t) {
         const ret = new Vector3(this.start).increaseByMultiple(this.dir, t);
@@ -120,7 +126,6 @@ class Ray {
         let ret = [];
         for (const g of geometries) {
             const record = this.hit(g);
-            console.log(record)
             if (record.length === undefined) {
                 console.error("Return type of hit() should be an array.");
             }
@@ -150,11 +155,9 @@ class Ray {
         Return an instance of the HitRecord class.
         */
         // aliases for shorter typing
-//        console.log(g)
         const pt0 = g.v3_pt0;
         const pt1 = g.v3_pt1;
         const pt2 = g.v3_pt2;
-//        console.log(pt0,pt1,pt2)
         // compute d, normal, edge1, edge2 once only, to save time
         if (g.edge1 === undefined) {
             g.edge1 = vectorDifference(pt0, pt1);
@@ -175,7 +178,6 @@ class Ray {
             g.d = g.normal.dotProduct(pt1);
         }
         const t = (g.d - g.normal.dotProduct(this.start))/g.normal.dotProduct(this.dir);
-        console.log("t from sheet", t)
         const pt = this.tToPt(t);
         // check if pt is within sheet
         let alpha = vectorDifference(pt,pt1).dotProduct(g.edge1);
@@ -187,7 +189,9 @@ class Ray {
             // hit doesn't count
             return [];
         }
-        return [new HitRecord(this, t, pt, g, g.normal)];
+        
+        const hit = new HitRecord(this, t, pt, g, g.normal)
+        return [hit];
     }
 
     hitSphere(g) {
@@ -197,34 +201,41 @@ class Ray {
         */
         // TODO
         const r = g.f_radius        //sphere radius
-        const CO = new Vector3(vectorDifference(this.start, g.v3_center))  //distance b/w start point of ray and circle center
-        console.log(CO)
+//        const CO = new Vector3(vectorDifference(this.start, g.v3_center))  //distance b/w start point of ray and circle center
+//        console.log("CO", CO)
+//        
+//        const a = this.dir.dotProduct(this.dir)       //<D,D>
+//        console.log("a", a)
+//        const b = 2*(CO.dotProduct(this.dir))           // s<CO,D>
+//        console.log("b", b)
+//        const c = CO.dotProduct(CO) - (r*r)    
+//        console.log("c", c)
         
-        const a = this.dir.dotProduct(this.dir)       //<D,D>
-        const b = 2*(CO.dotProduct(this.dir))           // s<CO,D>
-        const c = CO.dotProduct(CO) - (r*r)    
+        const u = vectorDifference(this.start, g.v3_center)         //A-q , start - spheres center
+        const v = this.dir          //B-A
+        const a = v.dotProduct(v)           //<v,v>
+        const b = 2* (u.dotProduct(v))
+        const c = u.dotProduct(u) - (r*r)
+ 
         
         const discriminant = (b*b) - (4*a*c)
-        console.log(discriminant)
         if (discriminant < 0) {
-            return false
+            const t = (-b + Math.sqrt(discriminant)) / (2*a)
+            const pt = this.tToPt(t)
+            const pt_normal = vectorDifference(pt, g.v3_center).normalize()
+            
+            return [new HitRecord(this, t, pt, g, pt_normal)]
         }
 
         
         //interesections
-        console.log(Math.sqrt(discriminant))
         const t1 = (-b + Math.sqrt(discriminant)) / (2*a)
         const t2 = (-b - Math.sqrt(discriminant)) / (2*a)
         
         
-        console.log("t1 from sphere", t1)
-        console.log("t2 from sphere", t2)
-
-        
         //points where ray hit at t1 and t2
         const pt1 = this.tToPt(t1);
         const pt2 = this.tToPt(t2);
-        console.log(pt1,pt2)
         
 
         //normals of circle are vector b/w pt - center of circle
@@ -234,11 +245,17 @@ class Ray {
         
         const hit1 = new HitRecord(this, t1, pt1, g, pt1_normal)
         const hit2 = new HitRecord(this, t2, pt2, g, pt2_normal)
-        console.log(hit1, hit2)
-
-        
+      
+    
         //return instance of hit record class
-        return [hit1, hit2]
+        if (t1 < t2) {
+            return [hit1, hit2]
+        }
+        else {
+            return [hit2, hit1]
+        }
+        
+        
         }
 
     hitBox(g) {
