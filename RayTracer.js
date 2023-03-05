@@ -92,11 +92,10 @@ export class RayTracer {
             
             const sortedrecord = record.sort(cmp)
             const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
-            color.x = color.x *255
-             color.y = color.y *255
-             color.z = color.z *255
             
-            return (color)
+            const final_color = new Vector3(color.x*255, color.y*255, color.z*255)
+            
+            return (final_color)
         }
         else {
             return new Vector3(0,0,0)
