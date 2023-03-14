@@ -117,9 +117,12 @@ export class RayTracer {
         
         const dif_light = this.diffuse(hit, light_source) 
         const spec_light = this.specular(hit, light_source)
+        console.log(original_color, dif_light, spec_light)
+        
+        const shading = dif_light*spec_light
         
         
-        const final_light = original_color * dif_light * spec_light
+        const final_light = new Vector3(original_color.x * shading, original_color.y * shading,  original_color.z *shading)
         return final_light
     }
     
@@ -151,7 +154,6 @@ export class RayTracer {
                 
         const alignment = to_eye.dotProduct(outgoingLight)
         const s = alignment/(Math.abs(to_eye.dotProduct(to_eye)) * Math.abs(outgoingLight.dotProduct(outgoingLight)))
-        
         
         return s
     }
