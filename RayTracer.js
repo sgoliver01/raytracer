@@ -93,7 +93,7 @@ export class RayTracer {
             //(lights[i].v3_position)
             const light = lights[i]
         
-            if (record.length > 8) {
+            if (record.length > 0) {
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
 
 
@@ -102,7 +102,7 @@ export class RayTracer {
 
                 const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
                 const final_light = this.whatLight(sortedrecord[0], color_without_shading ,light)
-                return (color_without_shading)
+                return (final_light)
             }
             else {
                 return new Vector3(0,0,0)
@@ -116,7 +116,7 @@ export class RayTracer {
     whatLight(hit, original_color, light_source) {
         
         const dif_light = this.diffuse(hit, light_source) 
-        const spec_light = this.specular(light_source)
+        const spec_light = this.specular(hit, light_source)
         
         
         const final_light = original_color * dif_light * spec_light
@@ -124,38 +124,36 @@ export class RayTracer {
     }
     
     diffuse(hit, light_source) { //lambert computation
-        console.log("hit", hit)
         const light_pos = light_source.v3_position
         const point = hit.pt
         
-        
-        const normal = hit.normal
         const toLight = vectorDifference(light_pos, point)
+        const normal = hit.normal
         const alignment = toLight.dotProduct(normal)
-        const lengthNormal = Math.sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
-        const lengthToLight = Math.sqrt(toLight[0]*toLight[0] + toLight[1]*toLight[1] + toLight[2]*toLight[2]);
-        const m = alignment / (lengthNormal * lengthToLight);
-        
     
-//        const m = alignment/(Math.abs(toLight) * Math.abs(normal))
-//        console.log(m)
-//        const dif_light = .5
+        const m = alignment/(Math.abs(toLight.dotProduct(toLight)) * Math.abs(normal.dotProduct(normal)))
+        
         return m
-        
-        
-//        const normal = hitRecord.normal;        
-//        const toLight = [light[0] - hitRecord.pt[0], light[1] - hitRecord.pt[1], light[2] - hitRecord.pt[2]];
-//        const alignment = normal[0]*toLight[0] + normal[1]*toLight[1] + normal[2]*toLight[2];
-//        const lengthNormal = Math.sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
-//        const lengthToLight = Math.sqrt(toLight[0]*toLight[0] + toLight[1]*toLight[1] + toLight[2]*toLight[2]);
-//        const m = alignment / (lengthNormal * lengthToLight);
         
     }
     
-    specular(light_source) {      //phong computation
+    specular(hit, light_source) {      //phong computation
+
+        const point = hit.pt
+
+        const to_eye = vectorDifference(this.scene.v3_eye, point)
+        const light_pos = light_source.v3_position
+        const toLight = vectorDifference(light_pos, point)
+        const normal = hit.normal
         
-        const spec_light = .5
-        return spec_light
+        const alpha = 2*toLight.dotProduct(normal)/normal.dotProduct(normal)
+        const outgoingLight = new Vector3(alpha*normal.x - toLight.x, alpha*normal.y - toLight.y, alpha*normal.z - toLight.z)
+                
+        const alignment = to_eye.dotProduct(outgoingLight)
+        const s = alignment/(Math.abs(to_eye.dotProduct(to_eye)) * Math.abs(outgoingLight.dotProduct(outgoingLight)))
+        
+        
+        return s
     }
 }
 
