@@ -86,24 +86,64 @@ export class RayTracer {
         Determine the color that results from the given HitRecord.
         */
         // TODO
-        if (record.length > 0) {
-            const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
+        
+        //for loop goes thru each light source --> think this needs to go after finding the first intersection
+        const lights = this.scene.a_lights
+        for (var i = 0; i <lights.length; i++) {
+            //(lights[i].v3_position)
+            const light = lights[i]
+        
+            if (record.length > 0) {
+                const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
 
-            
-            const sortedrecord = record.sort(cmp)
-            const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
-            
-            const final_color = new Vector3(color.x*255, color.y*255, color.z*255)
-            
-            return (final_color)
-        }
-        else {
-            return new Vector3(0,0,0)
-        }
+
+                const sortedrecord = record.sort(cmp)
+                const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
+
+                const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
+                const final_light = this.whatLight(sortedrecord[0], color_without_shading ,light)
+                return (final_light)
+            }
+            else {
+                return new Vector3(0,0,0)
+            }
+    }
+    
 
     }
 
     // To add shading, break it into steps: whatLight(), diffuse(), highlight(), or similar
+    whatLight(hit, original_color, light_source) {
+        
+        const dif_light = this.diffuse(hit, light_source) 
+        const spec_light = this.specular(light_source)
+        
+        
+        const final_light = original_color * dif_light * spec_light
+        return final_light
+    }
+    
+    diffuse(hit, light_source) { //lambert computation
+        console.log("hit", hit)
+        const light_pos = light_source.v3_position
+        const point = hit.pt
+        
+        const toLight = vectorDifference(light_pos, point)
+        const normal = hit.normal
+        const alignment = toLight.dotProduct(normal)
+    
+        const m = alignment/(Math.abs(toLight) * Math.abs(normal))
+        console.log(m)
+        const dif_light = .5
+        return dif_light
+        
+    }
+    
+    specular(light_source) {      //phong computation
+        
+        const spec_light = .5
+        return spec_light
+    }
 }
 
 class Ray {
