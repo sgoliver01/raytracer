@@ -121,10 +121,10 @@ export class RayTracer {
         const spec_light = this.specular(hit, light_source)
         //console.log(original_color, dif_light, spec_light)
         
-        const shading = dif_light*spec_light
+      //  const shading = dif_light*spec_light
         
         
-        const final_light = new Vector3(original_color.x * shading, original_color.y * shading,  original_color.z *shading)
+        const final_light = new Vector3(original_color.x * dif_light + spec_light, original_color.y * dif_light + spec_light,  original_color.z *dif_light + spec_light)
         return final_light
     }
     
@@ -136,8 +136,12 @@ export class RayTracer {
         const normal = hit.normal
         const alignment = toLight.dotProduct(normal)
     
-        const m = alignment/(Math.abs(toLight.dotProduct(toLight)) * Math.abs(normal.dotProduct(normal)))
+        var m = alignment/(Math.sqrt(toLight.dotProduct(toLight)) * Math.sqrt(normal.dotProduct(normal)))
         
+        if (m < 0) {
+            m = 0
+        }
+
         return m
         
     }
@@ -155,9 +159,14 @@ export class RayTracer {
         const outgoingLight = new Vector3(alpha*normal.x - toLight.x, alpha*normal.y - toLight.y, alpha*normal.z - toLight.z)
                 
         const alignment = to_eye.dotProduct(outgoingLight)
-        const s = alignment/(Math.abs(to_eye.dotProduct(to_eye)) * Math.abs(outgoingLight.dotProduct(outgoingLight)))
+        var s = alignment/(Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
         
-        return s
+        if (s < 0) {
+            s = 0
+        }
+        
+      //  console.log(Math.pow(s,10))
+        return (Math.pow(s, 10))
     }
 }
 
