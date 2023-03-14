@@ -120,11 +120,13 @@ export class RayTracer {
         const dif_light = this.diffuse(hit, light_source) 
         const spec_light = this.specular(hit, light_source)
         //console.log(original_color, dif_light, spec_light)
+    //    return new Vector3(255*dif_light + spec_light, 255*dif_light + spec_light, 255*dif_light + spec_light); 
         
-      //  const shading = dif_light*spec_light
+        const shading = dif_light*spec_light
         
         
-        const final_light = new Vector3(original_color.x * dif_light + spec_light, original_color.y * dif_light + spec_light,  original_color.z *dif_light + spec_light)
+        const final_light = new Vector3((original_color.x * dif_light) + spec_light, ( original_color.y * dif_light) + spec_light,(original_color.z *dif_light) + spec_light)
+     
         return final_light
     }
     
@@ -138,10 +140,10 @@ export class RayTracer {
     
         var m = alignment/(Math.sqrt(toLight.dotProduct(toLight)) * Math.sqrt(normal.dotProduct(normal)))
         
-        if (m < 0) {
+         if (m < 0) {
             m = 0
         }
-
+        
         return m
         
     }
@@ -165,8 +167,8 @@ export class RayTracer {
             s = 0
         }
         
-      //  console.log(Math.pow(s,10))
-        return (Math.pow(s, 10))
+        
+        return (Math.pow(s,10))
     }
 }
 
