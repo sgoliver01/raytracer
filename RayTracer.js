@@ -93,7 +93,7 @@ export class RayTracer {
             //(lights[i].v3_position)
             const light = lights[i]
         
-            if (record.length > 0) {
+            if (record.length > 8) {
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
 
 
@@ -102,7 +102,7 @@ export class RayTracer {
 
                 const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
                 const final_light = this.whatLight(sortedrecord[0], color_without_shading ,light)
-                return (final_light)
+                return (color_without_shading)
             }
             else {
                 return new Vector3(0,0,0)
@@ -128,14 +128,27 @@ export class RayTracer {
         const light_pos = light_source.v3_position
         const point = hit.pt
         
-        const toLight = vectorDifference(light_pos, point)
+        
         const normal = hit.normal
+        const toLight = vectorDifference(light_pos, point)
         const alignment = toLight.dotProduct(normal)
+        const lengthNormal = Math.sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
+        const lengthToLight = Math.sqrt(toLight[0]*toLight[0] + toLight[1]*toLight[1] + toLight[2]*toLight[2]);
+        const m = alignment / (lengthNormal * lengthToLight);
+        
     
-        const m = alignment/(Math.abs(toLight) * Math.abs(normal))
-        console.log(m)
-        const dif_light = .5
-        return dif_light
+//        const m = alignment/(Math.abs(toLight) * Math.abs(normal))
+//        console.log(m)
+//        const dif_light = .5
+        return m
+        
+        
+//        const normal = hitRecord.normal;        
+//        const toLight = [light[0] - hitRecord.pt[0], light[1] - hitRecord.pt[1], light[2] - hitRecord.pt[2]];
+//        const alignment = normal[0]*toLight[0] + normal[1]*toLight[1] + normal[2]*toLight[2];
+//        const lengthNormal = Math.sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
+//        const lengthToLight = Math.sqrt(toLight[0]*toLight[0] + toLight[1]*toLight[1] + toLight[2]*toLight[2]);
+//        const m = alignment / (lengthNormal * lengthToLight);
         
     }
     
