@@ -87,6 +87,8 @@ export class RayTracer {
         */
         // TODO
         
+        //console.log(record)
+        
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
         const lights = this.scene.a_lights
         for (var i = 0; i <lights.length; i++) {
@@ -117,7 +119,7 @@ export class RayTracer {
         
         const dif_light = this.diffuse(hit, light_source) 
         const spec_light = this.specular(hit, light_source)
-        console.log(original_color, dif_light, spec_light)
+        //console.log(original_color, dif_light, spec_light)
         
         const shading = dif_light*spec_light
         
@@ -276,8 +278,9 @@ class Ray {
             const pt = this.tToPt(t)
             const pt_normal = vectorDifference(pt, g.v3_center).normalize()
             
-            return [new HitRecord(this, t, pt, g, pt_normal)]
+            return []
         }
+        
 
         
         //interesections
