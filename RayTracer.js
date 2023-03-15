@@ -58,12 +58,28 @@ export class RayTracer {
             }
         }
     }
+    
+    setupCamera() {
+        const e = this.scene.v3_eye
+        const eyeOut = this.scene.v3_eyeOut
+        const up = this.scene.v3_up
+        console.log(e)
+        
+        const w = -1 * eyeOut
+        console.log(w)
+        const u = up.crossProduct(w)
+        const v = w.crossProduct(u)
+        
+        console.log(w,v,u)
+        
+    }
         
     pixelToRay(row, col) {
         /*
         Convert from pixel coordinate (row,col) to a viewing ray. Return an instance of the Ray class. 
         */
         // TODO
+        const [e, u, v, w] = this.setupCamera()
         const x = (col-.5*this.image.width)/this.image.width; // goes from -0.5 (left) to 0.5 (right)
         const y = (.5*this.image.height-row)/this.image.height; // goes from -0.5 (bottom) to 0.5 (top)
         const ray = new Ray(new Vector3(0,0,0),new Vector3(x, y, -1)); 
@@ -85,7 +101,7 @@ export class RayTracer {
         /*
         Determine the color that results from the given HitRecord.
         */
-        // TODO        
+        // TODO      
         
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
         const lights = this.scene.a_lights
@@ -101,6 +117,20 @@ export class RayTracer {
 
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
                 const sortedrecord = record.sort(cmp)
+                
+                
+                //check if record hit ray is a shadow ray
+                const pt_to_light = new Ray(sortedrecord[0].pt, light.v3_position)
+                for (const g of this.scene.a_geometries) {
+                    const shadow_hit = pt_to_light.hit(g) // dont know if i should be doing this in a loop or if should make this all hits and dont loop thru gs, but dont know which record would be right
+
+                    if (shadow_hit.t > 0.0001 && shadow_hit.t < 1) {
+                        console.log("SHADOW", shadow_hit)
+                        // pt is in shadow, return black
+                        return [0, 0, 0];
+                        }
+                }
+                
                 
      
                 const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
@@ -135,23 +165,23 @@ export class RayTracer {
        
         //compute shadow and return black if shadow is there
         const point = hit.pt
-        const shadowRay_dir = vectorDifference(point, light_source.v3_position)
-        
-        const shadowRay = new Ray(point, shadowRay_dir)
-        
-      
-            const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
-            
-        //    console.log(shadow_hit)
-            for (const i in shadow_hit) {
-                const one_record = (shadow_hit[i])
-
-            if (one_record.t > 0.0001 && one_record.t < 1) {
-            console.log("SHADOW")
-            // pt is in shadow, return black
-            return [0, 0, 0];
-        }
-            }
+//        const shadowRay_dir = vectorDifference(point, light_source.v3_position)
+//        
+//        const shadowRay = new Ray(point, shadowRay_dir)
+//        
+//      
+//        const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
+//            
+//        //    console.log(shadow_hit)
+//        for (const i in shadow_hit) {
+//            const one_record = (shadow_hit[i])
+//
+//            if (one_record.t > 0.0001 && one_record.t < 1) {
+//          //  console.log("SHADOW", one_record)
+//            // pt is in shadow, return black
+//            return [0, 0, 0];
+//            }
+//        }
 
         
 
