@@ -105,7 +105,7 @@ export class RayTracer {
         
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
         const lights = this.scene.a_lights
-        for (var i = 0; i <lights.length; i++) {
+        for (let i = 0; i <lights.length; i++) {
             //(lights[i].v3_position)
             const light = lights[i]
             
@@ -118,7 +118,6 @@ export class RayTracer {
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
                 const sortedrecord = record.sort(cmp)
                 
-     
                 const final_light = this.whatLight(sortedrecord[0] ,light)
                 return (final_light)
             }
@@ -138,21 +137,10 @@ export class RayTracer {
         
         
         
-        const color = hit.struckGeometry.j_material.v3_diffuse   
-        const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
-        
-        
-        const specularity_power = hit.struckGeometry.j_material.f_specularity
-        const dif_light = this.diffuse(hit, light_source) 
-        const spec_light = this.specular(hit, light_source, specularity_power)
-     
-    //    return new Vector3(255*dif_light + spec_light, 255*dif_light + spec_light, 255*dif_light + spec_light); 
-        
-       
-        //compute shadow and return black if shadow is there
+        //compute shadow and return black if shadow is there SHADOW CODE
         const point = hit.pt
         
-        const shadowRay_dir = vectorDifference(point, light_source.v3_position)  
+        const shadowRay_dir = vectorDifference(light_source.v3_position, point )  
         const shadowRay = new Ray(point, shadowRay_dir)
         
         const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
@@ -162,18 +150,28 @@ export class RayTracer {
             const one_record = (shadow_hit[i])
 
             if (one_record.t > 0.0001 && one_record.t < 1) {
-          //  console.log("SHADOW", one_record)
+//            console.log("SHADOW", one_record)
             // pt is in shadow, return black
             return new Vector3([0, 0, 0]);
             }
         }
-
         
+        const color = hit.struckGeometry.j_material.v3_diffuse   
+        const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
+        
+        
+        const specularity_power = hit.struckGeometry.j_material.f_specularity
+        const dif_light = this.diffuse(hit, light_source) 
+        const spec_light = this.specular(hit, light_source, specularity_power)
+     
+ 
         const final_light = new Vector3((color_without_shading.x * dif_light), ( color_without_shading.y * dif_light),(color_without_shading.z *dif_light))
         
         const final_fr_thisTime = vectorSum(final_light, spec_light)
         return final_fr_thisTime
     }
+    
+    
     
     diffuse(hit, light_source) { //lambert computation
         
