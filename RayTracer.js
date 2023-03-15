@@ -89,21 +89,47 @@ export class RayTracer {
         
         //console.log(record)
         
+        
+        
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
         const lights = this.scene.a_lights
         for (var i = 0; i <lights.length; i++) {
             //(lights[i].v3_position)
             const light = lights[i]
-        
+            
+           
+               
+                
             if (record.length > 0) {
+                
+
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
-
-
                 const sortedrecord = record.sort(cmp)
+                
+                                
+                const point = sortedrecord[0].pt
+                const light_pos = light.v3_position
+                const shadowRay = vectorDifference(point, light_pos)
+                
+                //console.log(shadowRay)
+         
+                for (const g of this.scene.a_geometries) {
+                    console.log("g")
+                    //const hit = shadowRay.allHits(g)
+                    const hit = ray.allHits(g);
+                    console.log("hit", hit)
+
+                        if (hit.distance > 0.0001 && hit.distance < 1) {
+                    // pt is in shadow, return black
+                            return [0, 0, 0];
+                        }
+                }
+                
+                
+     
                 const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
                 
-              
-
+                
                 const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
                 
                 
@@ -112,13 +138,19 @@ export class RayTracer {
             }
             else {
                 
-                return new Vector3(0,0,0)
+                return new Vector3(0,0,0) 
             }
     }
     
 
     }
-
+    
+    
+ 
+    
+    
+    
+    
     // To add shading, break it into steps: whatLight(), diffuse(), highlight(), or similar
     whatLight(hit, original_color, light_source) {
         
@@ -134,6 +166,7 @@ export class RayTracer {
        
         
         
+        
         const final_light = new Vector3((original_color.x * dif_light), ( original_color.y * dif_light),(original_color.z *dif_light))
         
         const final_fr_thisTime = vectorSum(final_light, spec_light)
@@ -142,6 +175,7 @@ export class RayTracer {
     }
     
     diffuse(hit, light_source) { //lambert computation
+        
         const light_pos = light_source.v3_position
         const point = hit.pt
         
