@@ -139,7 +139,7 @@ export class RayTracer {
         //compute shadow and return black if shadow is there SHADOW CODE
         const point = hit.pt
         
-        const shadowRay_dir = vectorDifference(light_source.v3_position, point )  
+        const shadowRay_dir = vectorDifference(light_source.v3_position, point)  
         const shadowRay = new Ray(point, shadowRay_dir)
         
         const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
@@ -155,6 +155,9 @@ export class RayTracer {
             }
         }
         
+        
+        
+        
         const light_pos = light_source.v3_position
         const toLight = vectorDifference(light_pos, point).normalize()
         
@@ -168,7 +171,7 @@ export class RayTracer {
         const dif_color = this.diffuse(hit, light_source, toLight) 
         
         //console.log(dif_color)
-        const spec_light = this.specular(hit, light_source)
+        const spec_light = this.specular(hit, light_source, toLight)
      
  
       
@@ -193,6 +196,7 @@ export class RayTracer {
  
         const normal = hit.normal
         const alignment = toLight.dotProduct(normal) 
+        //console.log(alignment)
         
         if (alignment<0){
             return new Vector3(0,0,0)
@@ -203,43 +207,51 @@ export class RayTracer {
 //         if (m < 0) {
 //            m = 0
 //        }
-        const col = new Vector3(hit.struckGeometry.j_material.v3_diffuse, alignment)
+        const color = vectorScaled(hit.struckGeometry.j_material.v3_diffuse, alignment)
         
-        col.scaleBy(light.f_intensity)
+        
+        color.scaleBy(light.f_intensity)
+        //console.log(color)
        
-        return col
+        return color
 //        return m
         
     }
     
-    specular(hit, light_source) {      //phong computation
+    specular (hit, light_source, toLight) {      //phong computation
 
         const point = hit.pt
 
         const specularity_power = hit.struckGeometry.j_material.f_specularity
+        
         const to_eye = vectorDifference(this.scene.v3_eye, point)
-        const light_pos = light_source.v3_position
-        const toLight = vectorDifference(light_pos, point)
+        
+        //const light_pos = light_source.v3_position
+        
         const normal = hit.normal
         
-        const alpha = 2*toLight.dotProduct(normal)/ (normal.dotProduct(normal))
-        
-        const outgoingLight = new Vector3(alpha*normal.x - toLight.x, alpha*normal.y - toLight.y, alpha*normal.z - toLight.z)
+        const alpha = 2*toLight.dotProduct(normal)
+        const outgoingLight = vectorDifference(vectorScaled(normal,alpha), toLight)
+        outgoingLight.normalize()
+        to_eye.normalize()
                 
-        const alignment = outgoingLight.dotProduct(to_eye)
        
         
-        var s = alignment/ (Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
+       
+        let s = outgoingLight.dotProduct(to_eye)
+        //var s = alignment/ (Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
         
         if (s < 0) {
             s = 0
         }
         
-        s = Math.pow(s,59)
-    
+        s = Math.pow(s,specularity_power)
+        //console.log(specularity_power)
         
         
-        const final_spec = new Vector3([s*255,s*255,s*255])
+        
+        const final_spec = new Vector3(1,1,1)
+        final_spec.scaleBy(s*light_source.f_intensity)
         
         return final_spec
     }
