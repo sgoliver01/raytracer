@@ -85,11 +85,7 @@ export class RayTracer {
         /*
         Determine the color that results from the given HitRecord.
         */
-        // TODO
-        
-        //console.log(record)
-        
-        
+        // TODO        
         
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
         const lights = this.scene.a_lights
@@ -105,26 +101,6 @@ export class RayTracer {
 
                 const cmp = (a,b) => a.t-b.t || isNaN(a.t)-isNaN(b.t);
                 const sortedrecord = record.sort(cmp)
-                
-                                
-                const point = sortedrecord[0].pt
-                const light_pos = light.v3_position
-                const shadowRay = vectorDifference(point, light_pos)
-                
-                //console.log(shadowRay)
-         
-                for (const g of this.scene.a_geometries) {
-                    console.log("g")
-                    //const hit = shadowRay.allHits(g)
-                    const hit = ray.allHits(g);
-                    console.log("hit", hit)
-
-                        if (hit.distance > 0.0001 && hit.distance < 1) {
-                    // pt is in shadow, return black
-                            return [0, 0, 0];
-                        }
-                }
-                
                 
      
                 const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
@@ -144,12 +120,7 @@ export class RayTracer {
     
 
     }
-    
-    
  
-    
-    
-    
     
     // To add shading, break it into steps: whatLight(), diffuse(), highlight(), or similar
     whatLight(hit, original_color, light_source) {
@@ -158,13 +129,33 @@ export class RayTracer {
         const specularity_power = hit.struckGeometry.j_material.f_specularity
         const dif_light = this.diffuse(hit, light_source) 
         const spec_light = this.specular(hit, light_source, specularity_power)
-        //console.log("original color " , original_color)
-        //console.log("dif_light " , dif_light)
-        //console.log("spec light ", spec_light)
+     
     //    return new Vector3(255*dif_light + spec_light, 255*dif_light + spec_light, 255*dif_light + spec_light); 
         
        
+        //compute shadow and return black if shadow is there
+        const point = hit.pt
+        const shadowRay_dir = vectorDifference(point, light_source.v3_position)
         
+        const shadowRay = new Ray(point, shadowRay_dir)
+        
+      
+            const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
+            
+        //    console.log(shadow_hit)
+            for (const i in shadow_hit) {
+                const one_record = (shadow_hit[i])
+
+            if (one_record.t > 0.0001 && one_record.t < 1) {
+            console.log("SHADOW")
+            // pt is in shadow, return black
+            return [0, 0, 0];
+        }
+            }
+
+        
+
+    
         
         
         const final_light = new Vector3((original_color.x * dif_light), ( original_color.y * dif_light),(original_color.z *dif_light))
