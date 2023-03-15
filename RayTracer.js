@@ -101,12 +101,17 @@ export class RayTracer {
 
                 const sortedrecord = record.sort(cmp)
                 const color = sortedrecord[0].struckGeometry.j_material.v3_diffuse
+                
+              
 
                 const color_without_shading = new Vector3(color.x*255, color.y*255, color.z*255)
+                
+                
                 const final_light = this.whatLight(sortedrecord[0], color_without_shading ,light)
                 return (final_light)
             }
             else {
+                
                 return new Vector3(0,0,0)
             }
     }
@@ -117,17 +122,23 @@ export class RayTracer {
     // To add shading, break it into steps: whatLight(), diffuse(), highlight(), or similar
     whatLight(hit, original_color, light_source) {
         
+        
+        const specularity_power = hit.struckGeometry.j_material.f_specularity
         const dif_light = this.diffuse(hit, light_source) 
-        const spec_light = this.specular(hit, light_source)
-        //console.log(original_color, dif_light, spec_light)
+        const spec_light = this.specular(hit, light_source, specularity_power)
+        //console.log("original color " , original_color)
+        //console.log("dif_light " , dif_light)
+        //console.log("spec light ", spec_light)
     //    return new Vector3(255*dif_light + spec_light, 255*dif_light + spec_light, 255*dif_light + spec_light); 
         
-        const shading = dif_light*spec_light
+       
         
         
-        const final_light = new Vector3((original_color.x * dif_light) + spec_light, ( original_color.y * dif_light) + spec_light,(original_color.z *dif_light) + spec_light)
+        const final_light = new Vector3((original_color.x * dif_light), ( original_color.y * dif_light),(original_color.z *dif_light))
+        
+        const final_fr_thisTime = vectorSum(final_light, spec_light)
      
-        return final_light
+        return final_fr_thisTime
     }
     
     diffuse(hit, light_source) { //lambert computation
@@ -148,7 +159,7 @@ export class RayTracer {
         
     }
     
-    specular(hit, light_source) {      //phong computation
+    specular(hit, light_source, specularity_power) {      //phong computation
 
         const point = hit.pt
 
@@ -157,18 +168,24 @@ export class RayTracer {
         const toLight = vectorDifference(light_pos, point)
         const normal = hit.normal
         
-        const alpha = 2*toLight.dotProduct(normal)/normal.dotProduct(normal)
+        const alpha = 2*toLight.dotProduct(normal)/ (normal.dotProduct(normal))
+        
         const outgoingLight = new Vector3(alpha*normal.x - toLight.x, alpha*normal.y - toLight.y, alpha*normal.z - toLight.z)
                 
         const alignment = to_eye.dotProduct(outgoingLight)
-        var s = alignment/(Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
+       
+        
+        var s = alignment/ (Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
         
         if (s < 0) {
             s = 0
         }
         
+        s = Math.pow(s,specularity_power)
         
-        return (Math.pow(s,10))
+        const final_spec = new Vector3([s*255,s*255,s*255])
+        
+        return final_spec
     }
 }
 
