@@ -44,13 +44,15 @@ export class RayTracer {
         For every pixel of this.image, compute its color, then use putPixel() to set it. 
         */
         // TODO
+          //set up camera and use to pass to ray
+        const [e, u, v, w] = this.setupCamera()
         
         // 1. For Each Pixel
         for (let row=0; row < this.image.height; row++) {
             for (let col=0; col < this.image.width; col++) {
     
                 // 2. Compute ray
-                const ray = this.pixelToRay(row,col)
+                const ray = this.pixelToRay(row,col, e,u, v, w)
                 
                 const color = this.traceRay(ray)
                 color.scaleBy(255)
@@ -60,30 +62,67 @@ export class RayTracer {
         }
     }
     
+
     setupCamera() {
         const e = this.scene.v3_eye
         const eyeOut = this.scene.v3_eyeOut
         const up = this.scene.v3_up
-        console.log(e)
         
-        const w = -1 * eyeOut
-        console.log(w)
+        const w = vectorScaled(eyeOut,-1)
         const u = up.crossProduct(w)
         const v = w.crossProduct(u)
+        u.normalize()
+        v.normalize()
+        w.normalize()
         
-        console.log(w,v,u)
+        return [e, u, v, w]
         
     }
         
-    pixelToRay(row, col) {
+    pixelToRay(row, col, e,u, v, w) {
         /*
         Convert from pixel coordinate (row,col) to a viewing ray. Return an instance of the Ray class. 
         */
         // TODO
-        //const [e, u, v, w] = this.setupCamera()
-        const x = (col-.5*this.image.width)/this.image.width; // goes from -0.5 (left) to 0.5 (right)
-        const y = (.5*this.image.height-row)/this.image.height; // goes from -0.5 (bottom) to 0.5 (top)
-        const ray = new Ray(new Vector3(0,0,0),new Vector3(x, y, -1)); 
+  
+         //OLD STUFF
+//        const x = (col-.5*this.image.width)/this.image.width; // goes from -0.5 (left) to 0.5 (right)
+//        const y = (.5*this.image.height-row)/this.image.height; // goes from -0.5 (bottom) to 0.5 (top)
+//        const ray = new Ray(new Vector3(0,0,0),new Vector3(x, y, -1)); 
+        
+        //new with camera positioning
+        const A = e //camera pt
+        
+        const d = this.scene.f_imageplaneDistance
+        const w_scaled_d = vectorScaled(w, d)
+        const first_term = vectorDifference(e, w_scaled_d)
+        const second = vectorScaled(v, (this.image.height/2))
+        const third = vectorScaled(v, (this.image.width/2))     //an image rendered when this was v not u
+        
+        const first_addition = vectorSum(first_term, second)
+        
+        const topLeft = vectorDifference(first_addition, third)
+        const squareHeight = this.scene.f_imageplaneHeight/ this.scene.i_height
+        const squareWidth = this.scene.f_imageplaneWidth/ this.scene.i_width
+
+//        console.log("topleft", topLeft)
+//        console.log("squareheight", squareHeight)
+//        console.log("square width", squareWidth)
+        
+        const first_pixel_second_term = vectorScaled(v,(.5*squareHeight))
+        const first_pixel_third_term = vectorScaled(u,(.5*squareWidth))
+        const dif = vectorDifference(topLeft, first_pixel_second_term)
+        const firstPixel = vectorSum(dif, first_pixel_third_term)
+        
+        const B_second_term = vectorScaled(v,(row*squareHeight))
+        const B_third_term =  vectorScaled(u,(col*squareWidth))
+        const B_combine_second_third = vectorSum(B_second_term, B_third_term)
+        
+        const B = vectorDifference(firstPixel, B_combine_second_third)
+        const direction = vectorDifference(B,A)
+        const ray = new Ray(A,direction)
+        
+        
         return ray
     }
     
@@ -151,8 +190,7 @@ export class RayTracer {
         const shadow_hit = shadowRay.allHits(this.scene.a_geometries)
             
         //    console.log(shadow_hit)
-        for (const hit of shadow_hit) {
-           
+        for (const hit of shadow_hit) { 
 
             if (hit.t > 0.0001 && hit.t < 1) {
 //            console.log("SHADOW", one_record)
