@@ -179,7 +179,7 @@ export class RayTracer {
                 return new Vector3(0,0,0) 
             }
     }
-    return color_added
+        return color_added
 
     }
  
@@ -496,15 +496,15 @@ class Ray {
         
         if (hit1.length !=0){
             
-            hits.push(hit1)
+            hits.concat(hit1)
         }
         
         
         //FACE 2
         const face2 = {
-          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
-          v3_pt1: new Vector3(minPt).increaseBy(zStep),
-          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+          v3_pt0: new Vector3(minPt).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep),
         }
 
         
@@ -512,16 +512,16 @@ class Ray {
         
         if (hit2.length !=0){
             
-            hits.push(hit2)
+            hits.concat(hit2)
         }
         
         
         
         //FACE 3
         const face3 = {
-          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
-          v3_pt1: new Vector3(minPt).increaseBy(zStep),
-          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+          v3_pt0: new Vector3(minPt).increaseBy(xStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(xStep),
+          v3_pt2: new Vector3(minPt),
         }
 
         
@@ -529,16 +529,16 @@ class Ray {
         
         if (hit3.length !=0){
             
-            hits.push(hit3)
+            hits.concat(hit3)
         }
         
         
         
          //FACE 4
         const face4 = {
-          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
-          v3_pt1: new Vector3(minPt).increaseBy(zStep),
-          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep).increaseBy(xStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+          v3_pt2: new Vector3(minPt).increaseBy(xStep),
         }
 
         
@@ -546,15 +546,15 @@ class Ray {
         
         if (hit4.length !=0){
             
-            hits.push(hit4)
+            hits.concat(hit4)
         }
         
         
         //FACE 5
         const face5 = {
-          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
-          v3_pt1: new Vector3(minPt).increaseBy(zStep),
-          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+          v3_pt0: new Vector3(minPt).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep).increaseBy(yStep),
         }
 
         
@@ -562,12 +562,12 @@ class Ray {
         
         if (hit5.length !=0){
             
-            hits.push(hit5)
+            hits.concat(hit5)
         }
         
          //FACE 6
         const face6 = {
-          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt0: new Vector3(minPt),
           v3_pt1: new Vector3(minPt).increaseBy(zStep),
           v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
         }
@@ -576,14 +576,23 @@ class Ray {
         const hit6= this.hitSheet(face6)
         
         if (hit6.length !=0){
-            
-            hits.push(hit6)
+//            hit6.struckGeometry = g
+            hits.concat(hit6)
+        }
+        
+        console.log(hits)
+        
+        for (let i=0; i<hits.length; i++){
+            hits[i].struckGeometry = g
         }
         
         
-        return hits
+        return hits 
+        
+        
         
 
+        
         
     }
 }
