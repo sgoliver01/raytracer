@@ -475,9 +475,8 @@ class Ray {
         */
         // TODO
         
-        const hits = []
-        
-        
+        var hits = []
+  
         
         const minPt = g.v3_minPt;
         const xStep = new Vector3(g.v3_dim.x, 0, 0);
@@ -495,8 +494,7 @@ class Ray {
         const hit1= this.hitSheet(face1)
         
         if (hit1.length !=0){
-            
-            hits.concat(hit1)
+            hits = hits.concat(hit1)
         }
         
         
@@ -511,8 +509,8 @@ class Ray {
         const hit2= this.hitSheet(face2)
         
         if (hit2.length !=0){
-            
-            hits.concat(hit2)
+    
+            hits = hits.concat(hit2)
         }
         
         
@@ -528,8 +526,7 @@ class Ray {
         const hit3= this.hitSheet(face3)
         
         if (hit3.length !=0){
-            
-            hits.concat(hit3)
+            hits = hits.concat(hit3)
         }
         
         
@@ -545,8 +542,7 @@ class Ray {
         const hit4= this.hitSheet(face4)
         
         if (hit4.length !=0){
-            
-            hits.concat(hit4)
+            hits = hits.concat(hit4)
         }
         
         
@@ -560,9 +556,8 @@ class Ray {
         
         const hit5= this.hitSheet(face5)
         
-        if (hit5.length !=0){
-            
-            hits.concat(hit5)
+        if (hit5.length !=0){            
+            hits = hits.concat(hit5)
         }
         
          //FACE 6
@@ -577,23 +572,19 @@ class Ray {
         
         if (hit6.length !=0){
 //            hit6.struckGeometry = g
-            hits.concat(hit6)
+            hits = hits.concat(hit6)
         }
         
-        console.log(hits)
-        
-        for (let i=0; i<hits.length; i++){
+                
+        for (let i=0; i< hits.length; i++) {
+//            console.log("in loop")
+//            console.log(hits[i])
             hits[i].struckGeometry = g
         }
         
-        
+       
         return hits 
-        
-        
-        
 
-        
-        
     }
 }
 
