@@ -105,12 +105,19 @@ export class RayTracer {
         // TODO      
         
         //for loop goes thru each light source --> think this needs to go after finding the first intersection
+        
+        
+        let color_added = new Vector3 (0,0,0)
+        
+        
         const lights = this.scene.a_lights
         for (let i = 0; i <lights.length; i++) {
             //(lights[i].v3_position)
             const light = lights[i]
             
-                
+            
+            
+            
             if (record.length > 0) {
                 
 
@@ -122,7 +129,6 @@ export class RayTracer {
             }
             
             else {
-                
                 return new Vector3(0,0,0) 
             }
     }
@@ -224,6 +230,10 @@ export class RayTracer {
 
         const specularity_power = hit.struckGeometry.j_material.f_specularity
         
+        if (specularity_power<0 || specularity_power==="undefined"){
+            return new Vector3(0,0,0)
+        }
+        
         const to_eye = vectorDifference(this.scene.v3_eye, point)
         
         //const light_pos = light_source.v3_position
@@ -235,8 +245,7 @@ export class RayTracer {
         outgoingLight.normalize()
         to_eye.normalize()
                 
-       
-        
+   
        
         let s = outgoingLight.dotProduct(to_eye)
         //var s = alignment/ (Math.sqrt(to_eye.dotProduct(to_eye)) * Math.sqrt(outgoingLight.dotProduct(outgoingLight)))
