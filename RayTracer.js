@@ -106,7 +106,7 @@ export class RayTracer {
         const first_addition = vectorSum(first_term, second)
         
         const topLeft = vectorDifference(first_addition, third)
-        console.log(topLeft)
+        //console.log(topLeft)
         
         //compute ray for every pixel
         const squareHeight = this.scene.f_imageplaneHeight/ this.scene.i_height
@@ -117,7 +117,7 @@ export class RayTracer {
         const first_pixel_third_term = vectorScaled(u,(.5*squareWidth))
         const dif = vectorDifference(topLeft, first_pixel_second_term)
         const firstPixel = vectorSum(dif, first_pixel_third_term)
-        console.log(firstPixel)
+        //console.log(firstPixel)
         
         const B_second_term = vectorScaled(v,(row*squareHeight))
         const B_third_term =  vectorScaled(u,(col*squareWidth))
@@ -225,8 +225,7 @@ export class RayTracer {
         //console.log(dif_color)
         const spec_light = this.specular(hit, light_source, toLight)
      
- 
-      
+    
         
 //        const final_light = new Vector3((color_without_shading.x * dif_light), ( color_without_shading.y * dif_light),(color_without_shading.z *dif_light))
 //        
@@ -382,8 +381,10 @@ class Ray {
             // ray-plane intersection
             g.d = g.normal.dotProduct(pt1);
         }
+        
         const t = (g.d - g.normal.dotProduct(this.start))/g.normal.dotProduct(this.dir);
         const pt = this.tToPt(t);
+        
         // check if pt is within sheet
         let alpha = vectorDifference(pt,pt1).dotProduct(g.edge1);
         alpha /= g.edge1.dotProduct(g.edge1);
@@ -395,8 +396,11 @@ class Ray {
             return [];
         }
         
+        //maybe return this top one later
         const hit = new HitRecord(this, t, pt, g, g.normal)
         return [hit];
+        
+        
     }
 
     hitSphere(g) {
@@ -470,6 +474,129 @@ class Ray {
         Return an instance of the HitRecord class.
         */
         // TODO
+        
+        const hits = []
+        
+        
+        
+        const minPt = g.v3_minPt;
+        const xStep = new Vector3(g.v3_dim.x, 0, 0);
+        const yStep = new Vector3(0, g.v3_dim.y, 0);
+        const zStep = new Vector3(0, 0, g.v3_dim.z);
+        
+        //FACE 1
+        const face1 = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit1= this.hitSheet(face1)
+        
+        if (hit1.length !=0){
+            
+            hits.push(hit1)
+        }
+        
+        
+        //FACE 2
+        const face2 = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit2= this.hitSheet(face2)
+        
+        if (hit2.length !=0){
+            
+            hits.push(hit2)
+        }
+        
+        
+        
+        //FACE 3
+        const face = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit3= this.hitSheet(face3)
+        
+        if (hit3.length !=0){
+            
+            hits.push(hit3)
+        }
+        
+        
+        
+         //FACE 4
+        const face = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit4= this.hitSheet(face4)
+        
+        if (hit4.length !=0){
+            
+            hits.push(hit4)
+        }
+        
+        
+        //FACE 5
+        const face = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit5= this.hitSheet(face5)
+        
+        if (hit5.length !=0){
+            
+            hits.push(hit5)
+        }
+        
+         //FACE 6
+        const face = {
+          v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
+          v3_pt1: new Vector3(minPt).increaseBy(zStep),
+          v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
+        }
+
+        
+        const hit6= this.hitSheet(face6)
+        
+        if (hit6.length !=0){
+            
+            hits.push(hit6)
+        }
+        
+        
+        return hits
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
 }
 
