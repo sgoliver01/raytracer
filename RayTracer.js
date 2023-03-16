@@ -67,60 +67,68 @@ export class RayTracer {
         const e = this.scene.v3_eye
         const eyeOut = this.scene.v3_eyeOut
         const up = this.scene.v3_up
-        
-        const w = vectorScaled(eyeOut,-1)
+                
+        const w = vectorScaled(eyeOut,-1)        
         const u = up.crossProduct(w)
         const v = w.crossProduct(u)
         u.normalize()
         v.normalize()
         w.normalize()
         
+        console.log(u,v,w)
+        
         return [e, u, v, w]
         
     }
         
-    pixelToRay(row, col, e,u, v, w) {
+    pixelToRay(row, col, e, u, v, w) {
         /*
         Convert from pixel coordinate (row,col) to a viewing ray. Return an instance of the Ray class. 
         */
         // TODO
-  
-         //OLD STUFF
-//        const x = (col-.5*this.image.width)/this.image.width; // goes from -0.5 (left) to 0.5 (right)
+        
+        //oldway
+//           const x = (col-.5*this.image.width)/this.image.width; // goes from -0.5 (left) to 0.5 (right)
 //        const y = (.5*this.image.height-row)/this.image.height; // goes from -0.5 (bottom) to 0.5 (top)
 //        const ray = new Ray(new Vector3(0,0,0),new Vector3(x, y, -1)); 
-        
-        //new with camera positioning
+////        return ray
+  
+   
+     //   new with camera positioning
         const A = e //camera pt
-        
         const d = this.scene.f_imageplaneDistance
         const w_scaled_d = vectorScaled(w, d)
+       
+        //compute topleft
         const first_term = vectorDifference(e, w_scaled_d)
-        const second = vectorScaled(v, (this.image.height/2))
-        const third = vectorScaled(v, (this.image.width/2))     //an image rendered when this was v not u
-        
+        const second = vectorScaled(v, (this.scene.f_imageplaneHeight/2))
+        const third = vectorScaled(u, (this.scene.f_imageplaneWidth/2))     //an image rendered when this was v not u
         const first_addition = vectorSum(first_term, second)
         
         const topLeft = vectorDifference(first_addition, third)
+        console.log(topLeft)
+        
+        //compute ray for every pixel
         const squareHeight = this.scene.f_imageplaneHeight/ this.scene.i_height
         const squareWidth = this.scene.f_imageplaneWidth/ this.scene.i_width
-
-//        console.log("topleft", topLeft)
-//        console.log("squareheight", squareHeight)
-//        console.log("square width", squareWidth)
+        
         
         const first_pixel_second_term = vectorScaled(v,(.5*squareHeight))
         const first_pixel_third_term = vectorScaled(u,(.5*squareWidth))
         const dif = vectorDifference(topLeft, first_pixel_second_term)
         const firstPixel = vectorSum(dif, first_pixel_third_term)
+        console.log(firstPixel)
         
         const B_second_term = vectorScaled(v,(row*squareHeight))
         const B_third_term =  vectorScaled(u,(col*squareWidth))
-        const B_combine_second_third = vectorSum(B_second_term, B_third_term)
         
-        const B = vectorDifference(firstPixel, B_combine_second_third)
+        let B = firstPixel.increaseByMultiple(B_second_term, -1)
+        B = B.increaseBy(B_third_term)
+        
         const direction = vectorDifference(B,A)
         const ray = new Ray(A,direction)
+       // console.log(ray)
+        
         
         
         return ray
