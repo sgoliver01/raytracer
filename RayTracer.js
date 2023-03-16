@@ -172,14 +172,14 @@ export class RayTracer {
                 const sortedrecord = record.sort(cmp)
                 
                 const final_light = this.whatLight(sortedrecord[0] ,light)
-                return (final_light)
+                color_added.increaseBy(final_light)
             }
             
             else {
                 return new Vector3(0,0,0) 
             }
     }
-    
+    return color_added
 
     }
  
@@ -518,7 +518,7 @@ class Ray {
         
         
         //FACE 3
-        const face = {
+        const face3 = {
           v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
           v3_pt1: new Vector3(minPt).increaseBy(zStep),
           v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
@@ -535,7 +535,7 @@ class Ray {
         
         
          //FACE 4
-        const face = {
+        const face4 = {
           v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
           v3_pt1: new Vector3(minPt).increaseBy(zStep),
           v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
@@ -551,7 +551,7 @@ class Ray {
         
         
         //FACE 5
-        const face = {
+        const face5 = {
           v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
           v3_pt1: new Vector3(minPt).increaseBy(zStep),
           v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
@@ -566,7 +566,7 @@ class Ray {
         }
         
          //FACE 6
-        const face = {
+        const face6 = {
           v3_pt0: new Vector3(minPt).increaseBy(zStep).increaseBy(yStep),
           v3_pt1: new Vector3(minPt).increaseBy(zStep),
           v3_pt2: new Vector3(minPt).increaseBy(zStep).increaseBy(xStep),
@@ -583,19 +583,7 @@ class Ray {
         
         return hits
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
     }
 }
